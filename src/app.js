@@ -7,7 +7,7 @@ app.get("/", function (req, res) {
 });
 var SHA256 = require("crypto-js/sha256");
 var CryptoBlock = /** @class */ (function () {
-    function CryptoBlock(index, timestamp, data, precedingHash) {
+    function CryptoBlock(index, timestamp, data, precedingHash, nonce) {
         if (precedingHash === void 0) { precedingHash = " "; }
         this.index = index;
         this.timestamp = timestamp;
@@ -15,11 +15,18 @@ var CryptoBlock = /** @class */ (function () {
         this.precedingHash = precedingHash;
         this.hash = this.computeHash();
     }
+    CryptoBlock.prototype.proofOfWork = function (difficulty) {
+        while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
+            this.nonce++;
+            this.hash = this.computeHash();
+        }
+    };
     CryptoBlock.prototype.computeHash = function () {
         return SHA256(this.index +
             this.precedingHash +
             this.timestamp +
-            JSON.stringify(this.data)).toString();
+            JSON.stringify(this.data) +
+            this.nonce).toString();
     };
     return CryptoBlock;
 }());
@@ -35,28 +42,42 @@ var CryptoBlockchain = /** @class */ (function () {
     };
     CryptoBlockchain.prototype.addNewBlock = function (newBlock) {
         newBlock.precedingHash = this.obtainLatestBlock().hash;
-        newBlock.hash = newBlock.computeHash();
+        //newBlock.hash = newBlock.computeHash();
+        newBlock.proofOfWork(this.difficulty);
         this.blockchain.push(newBlock);
+    };
+    CryptoBlockchain.prototype.checkChainValidity = function () {
+        for (var i = 1; i < this.blockchain.length; i++) {
+            var currentBlock = this.blockchain[i];
+            var precedingBlock = this.blockchain[i - 1];
+            if (currentBlock.hash !== currentBlock.computeHash()) {
+                return false;
+                console.log("This blockchain has been tampered with. It is now modified or corrupted");
+            }
+            if (currentBlock.precedingHash !== precedingBlock.hash)
+                return false;
+        }
+        return true;
     };
     return CryptoBlockchain;
 }());
-var smashingCoin = new CryptoBlockchain();
-smashingCoin.addNewBlock(new CryptoBlock(1, "27/3/2021", {
+var eamar = new CryptoBlockchain();
+eamar.addNewBlock(new CryptoBlock(1, "27/3/2021", {
     sender: "Iris Ljesnjanin",
     recipient: "Cosima Mielke",
     quantity: 50
 }));
-smashingCoin.addNewBlock(new CryptoBlock(2, "28/03/2021", {
+eamar.addNewBlock(new CryptoBlock(2, "28/03/2021", {
     sender: "Vitaly Friedman",
     recipient: "Ricardo Gimenes",
     quantity: 100
 }));
-smashingCoin.addNewBlock(new CryptoBlock(3, "28/03/2021", {
+eamar.addNewBlock(new CryptoBlock(3, "28/03/2021", {
     sender: "Mohammed Mubashir Hasan",
     recipient: "Donald Trump",
     quantity: 1000000
 }));
-console.log(JSON.stringify(smashingCoin, null, 4));
+console.log(JSON.stringify(eamar, null, 4));
 app.listen(5000, function (req, res) {
     console.log("listening on port 5000");
 });

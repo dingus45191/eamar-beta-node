@@ -20,11 +20,13 @@ class CryptoBlock {
   data: any;
   precedingHash: any;
   hash: string;
+  nonce?: any;
   constructor(
     index: number,
     timestamp: any,
     data: any,
-    precedingHash: any = " "
+    precedingHash: any = " ",
+    nonce?: any
   ) {
     this.index = index;
     this.timestamp = timestamp;
@@ -32,17 +34,28 @@ class CryptoBlock {
     this.precedingHash = precedingHash;
     this.hash = this.computeHash();
   }
+  proofOfWork(difficulty: any) {
+    while (
+      this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")
+    ) {
+      this.nonce++;
+      this.hash = this.computeHash();
+    }
+  }
+
   computeHash() {
     return SHA256(
       this.index +
         this.precedingHash +
         this.timestamp +
-        JSON.stringify(this.data)
+        JSON.stringify(this.data) +
+        this.nonce
     ).toString();
   }
 }
 class CryptoBlockchain {
   blockchain: any;
+  difficulty?: any;
   constructor() {
     this.blockchain = [this.startGenesisBlock()];
   }
@@ -54,9 +67,11 @@ class CryptoBlockchain {
   }
   addNewBlock(newBlock: any) {
     newBlock.precedingHash = this.obtainLatestBlock().hash;
-    newBlock.hash = newBlock.computeHash();
+    //newBlock.hash = newBlock.computeHash();
+    newBlock.proofOfWork(this.difficulty);
     this.blockchain.push(newBlock);
   }
+
   checkChainValidity() {
     for (let i = 1; i < this.blockchain.length; i++) {
       const currentBlock = this.blockchain[i];
@@ -74,29 +89,29 @@ class CryptoBlockchain {
   }
 }
 
-let smashingCoin = new CryptoBlockchain();
-smashingCoin.addNewBlock(
+let eamar = new CryptoBlockchain();
+eamar.addNewBlock(
   new CryptoBlock(1, "27/3/2021", {
     sender: "Iris Ljesnjanin",
     recipient: "Cosima Mielke",
     quantity: 50,
   })
 );
-smashingCoin.addNewBlock(
+eamar.addNewBlock(
   new CryptoBlock(2, "28/03/2021", {
     sender: "Vitaly Friedman",
     recipient: "Ricardo Gimenes",
     quantity: 100,
   })
 );
-smashingCoin.addNewBlock(
+eamar.addNewBlock(
   new CryptoBlock(3, "28/03/2021", {
     sender: "Mohammed Mubashir Hasan",
     recipient: "Donald Trump",
     quantity: 1000000,
   })
 );
-console.log(JSON.stringify(smashingCoin, null, 4));
+console.log(JSON.stringify(eamar, null, 4));
 
 app.listen(5000, (req, res) => {
   console.log("listening on port 5000");
