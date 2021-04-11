@@ -73,12 +73,17 @@ eamar.addNewBlock(new CryptoBlock(3, "28/03/2021", {
     recipient: "Donald Trump",
     quantity: 1000000,
 }));
+eamar.addNewBlock(new CryptoBlock(4, "28/03/2021", {
+    sender: "Mohammed Mubashir Hasan",
+    recipient: "Flintheart Glomgold",
+    quantity: 1000000,
+}));
 console.log(JSON.stringify(eamar, null, 4));
 // @ts-ignore
 app.listen(5000, function (req, res) {
     console.log("listening on port 5000");
 });
-app.post('/mineBlock', function (req, res) {
+app.post("/mineBlock", function (req, res) {
     var time = new Date().toUTCString();
     console.log(time);
     eamar.addNewBlock(new CryptoBlock(5, time, {

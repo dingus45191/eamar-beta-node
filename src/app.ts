@@ -35,7 +35,6 @@ class CryptoBlock {
     this.hash = this.computeHash();
   }
 
-
   computeHash() {
     return SHA256(
       this.index +
@@ -104,22 +103,29 @@ eamar.addNewBlock(
     quantity: 1000000,
   })
 );
+eamar.addNewBlock(
+  new CryptoBlock(4, "28/03/2021", {
+    sender: "Mohammed Mubashir Hasan",
+    recipient: "Flintheart Glomgold",
+    quantity: 1000000,
+  })
+);
 console.log(JSON.stringify(eamar, null, 4));
-
 
 // @ts-ignore
 app.listen(5000, (req, res) => {
   console.log("listening on port 5000");
 });
 
-app.post('/mineBlock',(req,res)=>{
-  const time= new Date().toUTCString()
-  console.log(time)
+app.post("/mineBlock", (req, res) => {
+  const time = new Date().toUTCString();
+  console.log(time);
   eamar.addNewBlock(
-      new CryptoBlock(5,time,{
-        sender: req.body.sender,
-        recipient:req.body.recipient,
-        quantity:req.body.quantity,
-      })
-  )
-})
+    new CryptoBlock(5, time, {
+      sender: req.body.sender,
+      recipient: req.body.recipient,
+      quantity: req.body.quantity,
+    })
+  );
+  res.send("Block mined");
+});
