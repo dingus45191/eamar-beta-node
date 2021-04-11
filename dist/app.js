@@ -18,12 +18,6 @@ var CryptoBlock = /** @class */ (function () {
         this.precedingHash = precedingHash;
         this.hash = this.computeHash();
     }
-    CryptoBlock.prototype.proofOfWork = function (difficulty) {
-        while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
-            this.nonce++;
-            this.hash = this.computeHash();
-        }
-    };
     CryptoBlock.prototype.computeHash = function () {
         return SHA256(this.index +
             this.precedingHash +
@@ -46,7 +40,6 @@ var CryptoBlockchain = /** @class */ (function () {
     CryptoBlockchain.prototype.addNewBlock = function (newBlock) {
         newBlock.precedingHash = this.obtainLatestBlock().hash;
         //newBlock.hash = newBlock.computeHash();
-        newBlock.proofOfWork(this.difficulty);
         this.blockchain.push(newBlock);
     };
     CryptoBlockchain.prototype.checkChainValidity = function () {
@@ -81,6 +74,16 @@ eamar.addNewBlock(new CryptoBlock(3, "28/03/2021", {
     quantity: 1000000,
 }));
 console.log(JSON.stringify(eamar, null, 4));
+// @ts-ignore
 app.listen(5000, function (req, res) {
     console.log("listening on port 5000");
+});
+app.post('/mineBlock', function (req, res) {
+    var time = new Date().toUTCString();
+    console.log(time);
+    eamar.addNewBlock(new CryptoBlock(5, time, {
+        sender: req.body.sender,
+        recipient: req.body.recipient,
+        quantity: req.body.quantity,
+    }));
 });

@@ -1,7 +1,7 @@
 "use strict";
-exports.__esModule = true;
+Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
-var app = express_1["default"]();
+var app = express_1.default();
 app.get("/", function (req, res) {
     res.send("Hello Eamar User!");
 });
@@ -15,12 +15,6 @@ var CryptoBlock = /** @class */ (function () {
         this.precedingHash = precedingHash;
         this.hash = this.computeHash();
     }
-    CryptoBlock.prototype.proofOfWork = function (difficulty) {
-        while (this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")) {
-            this.nonce++;
-            this.hash = this.computeHash();
-        }
-    };
     CryptoBlock.prototype.computeHash = function () {
         return SHA256(this.index +
             this.precedingHash +
@@ -43,7 +37,6 @@ var CryptoBlockchain = /** @class */ (function () {
     CryptoBlockchain.prototype.addNewBlock = function (newBlock) {
         newBlock.precedingHash = this.obtainLatestBlock().hash;
         //newBlock.hash = newBlock.computeHash();
-        newBlock.proofOfWork(this.difficulty);
         this.blockchain.push(newBlock);
     };
     CryptoBlockchain.prototype.checkChainValidity = function () {
@@ -65,19 +58,30 @@ var eamar = new CryptoBlockchain();
 eamar.addNewBlock(new CryptoBlock(1, "27/3/2021", {
     sender: "Iris Ljesnjanin",
     recipient: "Cosima Mielke",
-    quantity: 50
+    quantity: 50,
 }));
 eamar.addNewBlock(new CryptoBlock(2, "28/03/2021", {
     sender: "Vitaly Friedman",
     recipient: "Ricardo Gimenes",
-    quantity: 100
+    quantity: 100,
 }));
 eamar.addNewBlock(new CryptoBlock(3, "28/03/2021", {
     sender: "Mohammed Mubashir Hasan",
     recipient: "Donald Trump",
-    quantity: 1000000
+    quantity: 1000000,
 }));
 console.log(JSON.stringify(eamar, null, 4));
+// @ts-ignore
 app.listen(5000, function (req, res) {
     console.log("listening on port 5000");
+});
+app.post('/mineBlock', function (req, res) {
+    var time = new Date().toUTCString();
+    console.log(time);
+    console.log(req.body.sender)
+    eamar.addNewBlock(new CryptoBlock(5, time, {
+        sender: req.body.sender,
+        recipient: req.body.recipient,
+        quantity: req.body.quantity,
+    }));
 });

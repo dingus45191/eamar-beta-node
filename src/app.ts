@@ -34,14 +34,7 @@ class CryptoBlock {
     this.precedingHash = precedingHash;
     this.hash = this.computeHash();
   }
-  proofOfWork(difficulty: any) {
-    while (
-      this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")
-    ) {
-      this.nonce++;
-      this.hash = this.computeHash();
-    }
-  }
+
 
   computeHash() {
     return SHA256(
@@ -68,7 +61,6 @@ class CryptoBlockchain {
   addNewBlock(newBlock: any) {
     newBlock.precedingHash = this.obtainLatestBlock().hash;
     //newBlock.hash = newBlock.computeHash();
-    newBlock.proofOfWork(this.difficulty);
     this.blockchain.push(newBlock);
   }
 
@@ -104,6 +96,7 @@ eamar.addNewBlock(
     quantity: 100,
   })
 );
+
 eamar.addNewBlock(
   new CryptoBlock(3, "28/03/2021", {
     sender: "Mohammed Mubashir Hasan",
@@ -113,6 +106,20 @@ eamar.addNewBlock(
 );
 console.log(JSON.stringify(eamar, null, 4));
 
+
+// @ts-ignore
 app.listen(5000, (req, res) => {
   console.log("listening on port 5000");
 });
+
+app.post('/mineBlock',(req,res)=>{
+  const time= new Date().toUTCString()
+  console.log(time)
+  eamar.addNewBlock(
+      new CryptoBlock(5,time,{
+        sender: req.body.sender,
+        recipient:req.body.recipient,
+        quantity:req.body.quantity,
+      })
+  )
+})
