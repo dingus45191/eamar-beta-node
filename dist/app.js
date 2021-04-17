@@ -83,12 +83,14 @@ console.log(JSON.stringify(eamar, null, 4));
 app.listen(5000, function (req, res) {
     console.log("listening on port 5000");
 });
+app.use(express_1.default.json());
 app.post("/mineBlock", function (req, res) {
     var time = new Date().toUTCString();
     console.log(time);
-    eamar.addNewBlock(new CryptoBlock(5, time, {
+    eamar.addNewBlock(new CryptoBlock(6, "17/04/21", {
         sender: req.body.sender,
         recipient: req.body.recipient,
         quantity: req.body.quantity,
     }));
+    res.send(eamar);
 });

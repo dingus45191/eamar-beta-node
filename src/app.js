@@ -1,4 +1,6 @@
 "use strict";
+import express from "express";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = require("express");
 var app = express_1.default();
@@ -93,15 +95,16 @@ console.log(JSON.stringify(eamar, null, 4));
 app.listen(5000, function (req, res) {
   console.log("listening on port 5000");
 });
+app.use(express.json());
 app.post("/mineBlock", function (req, res) {
   var time = new Date().toUTCString();
   console.log(time);
   eamar.addNewBlock(
-    new CryptoBlock(5, time, {
+    new CryptoBlock(6, "17/04/21", {
       sender: req.body.sender,
       recipient: req.body.recipient,
       quantity: req.body.quantity,
     })
   );
-  res.send("Block mined");
+  res.send(eamar);
 });
